@@ -1,6 +1,6 @@
 # 🧠 Did I?
 
-**Did I?** is a Progressive Web App (PWA) built with **Next.js** that helps users verify and remember everyday actions ... reducing uncertainty, rechecking, and anxiety.
+**Did I?** is a (PWA) built with **Next.js** that helps users verify and remember everyday actions ... reducing uncertainty, rechecking, and anxiety.
 
 It focuses on **confirmation and proof**, not productivity.
 
