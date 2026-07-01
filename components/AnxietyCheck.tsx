@@ -1,8 +1,8 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Wind, Heart, TrendingDown, Plus, Trash2, Calendar, Brain } from 'lucide-react';
+import { Wind, Heart, TrendingDown, Plus, Trash2, Calendar, Brain, TrendingUp } from 'lucide-react';
 
 interface AnxietyRecord {
   id: string;
@@ -37,6 +37,9 @@ export default function AnxietyCheck() {
   }, [records]);
 
   // Breathing exercise timer
+  const breathingPhaseRef = useRef(breathingPhase);
+  breathingPhaseRef.current = breathingPhase;
+
   useEffect(() => {
     if (!isBreathingActive) return;
 
@@ -48,10 +51,10 @@ export default function AnxietyCheck() {
         const currentIndex = phases.indexOf(current);
         return phases[(currentIndex + 1) % phases.length];
       });
-    }, (durations[breathingPhase] || 4) * 1000);
+    }, durations[breathingPhaseRef.current] * 1000);
 
     return () => clearInterval(interval);
-  }, [isBreathingActive, breathingPhase]);
+  }, [isBreathingActive]);
 
   const addTrigger = () => {
     if (triggerInput.trim()) {
@@ -194,12 +197,12 @@ export default function AnxietyCheck() {
                 <TrendingDown className="w-5 h-5 text-accent" />
                 <h3 className="font-semibold text-foreground">Trend</h3>
               </div>
-              <div className="text-4xl font-bold text-primary">
+              <div className="text-4xl font-bold text-primary flex items-center justify-center">
                 {todayRecords.length > 1
                   ? todayRecords[0].level > todayRecords[todayRecords.length - 1].level
-                    ? '📉'
-                    : '📈'
-                  : '➡️'}
+                    ? <TrendingDown className="w-10 h-10 text-accent" />
+                    : <TrendingUp className="w-10 h-10 text-destructive" />
+                  : <TrendingUp className="w-10 h-10 text-muted-foreground" />}
               </div>
               <p className="text-sm text-muted-foreground mt-2">
                 {todayRecords.length > 1

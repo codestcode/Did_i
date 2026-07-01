@@ -1,10 +1,9 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Plus, Trash2, Edit2, CheckCircle2, Lightbulb, Save, X } from 'lucide-react';
 import ChecklistTemplates from './ChecklistTemplates';
-import SmartChecklist from './SmartChecklist';
 import { useTasks } from '@/hooks/useTasks';
 import { taskCompletionStorage } from '@/lib/services/storageService';
 
@@ -22,12 +21,23 @@ interface CheckItem {
 export default function ChecklistView() {
   const { tasks, updateTask, deleteTask } = useTasks();
   const [checklistItems, setChecklistItems] = useState<CheckItem[]>([]);
+  // Load checklist items from localStorage
+  useEffect(() => {
+    const saved = localStorage.getItem('did_i_checklist_items');
+    if (saved) {
+      try { setChecklistItems(JSON.parse(saved)); } catch {}
+    }
+  }, []);
+
+  // Save checklist items to localStorage
+  useEffect(() => {
+    localStorage.setItem('did_i_checklist_items', JSON.stringify(checklistItems));
+  }, [checklistItems]);
+
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editName, setEditName] = useState('');
   const [editCategory, setEditCategory] = useState('');
   const [editUrgency, setEditUrgency] = useState<'high' | 'medium' | 'low'>('medium');
-  const [newItemName, setNewItemName] = useState('');
-  const [newItemDesc, setNewItemDesc] = useState('');
 
   const toggleItemCompletion = (id: string) => {
     const checkItem = checklistItems.find(item => item.id === id);
@@ -77,32 +87,17 @@ export default function ChecklistView() {
 
   const convertTasksToCheckItems = () => {
     const completionMap = taskCompletionStorage.getAll();
+    const voiceMap = JSON.parse(localStorage.getItem('did_i_voice_confirmations') || '{}');
     const converted = tasks.map(task => ({
       id: task.id,
       name: task.title,
       category: task.category,
       completed: completionMap[task.id]?.completed ?? false,
       hasPhoto: task.photoIds.length > 0,
-      hasVoice: false,
+      hasVoice: !!voiceMap[task.id],
       urgency: task.urgency,
     }));
     setChecklistItems(converted);
-  };
-
-  const addItem = () => {
-    if (newItemName.trim()) {
-      setChecklistItems([...checklistItems, {
-        id: Date.now().toString(),
-        name: newItemName,
-        category: newItemDesc || 'General',
-        completed: false,
-        hasPhoto: false,
-        hasVoice: false,
-        urgency: 'medium',
-      }]);
-      setNewItemName('');
-      setNewItemDesc('');
-    }
   };
 
   const addTemplateItems = (templateItems: string[]) => {

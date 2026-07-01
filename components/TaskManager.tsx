@@ -22,8 +22,10 @@ export default function TaskManager() {
     setShowForm(false);
   };
 
-  const handleEditTask = (task: Task) => {
-    updateTask(task.id, task);
+  const handleEditTask = (data: Omit<Task, 'id' | 'createdAt' | 'updatedAt'>) => {
+    if (editingTask) {
+      updateTask(editingTask.id, data);
+    }
     setEditingTask(null);
   };
 

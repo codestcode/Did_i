@@ -58,6 +58,10 @@ export default function PhotoProof({ onPhotoCapture, initialPhoto }: PhotoProofP
     onPhotoCapture?.('');
   };
 
+  const confirmPhoto = () => {
+    if (photo) onPhotoCapture?.(photo);
+  };
+
   return (
     <div className="space-y-4">
       <div className="flex items-center gap-2">
@@ -155,14 +159,15 @@ export default function PhotoProof({ onPhotoCapture, initialPhoto }: PhotoProofP
                 <Trash2 className="w-5 h-5 inline mr-2" />
                 Retake
               </motion.button>
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                className="flex-1 py-3 rounded-lg bg-accent text-accent-foreground font-semibold hover:bg-accent/90 transition-colors"
-              >
-                <Check className="w-5 h-5 inline mr-2" />
-                Confirm
-              </motion.button>
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={confirmPhoto}
+                  className="flex-1 py-3 rounded-lg bg-accent text-accent-foreground font-semibold hover:bg-accent/90 transition-colors"
+                >
+                  <Check className="w-5 h-5 inline mr-2" />
+                  Confirm
+                </motion.button>
             </div>
           </motion.div>
         )}

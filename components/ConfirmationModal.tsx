@@ -3,7 +3,6 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Check, ChevronRight } from 'lucide-react';
-import PhotoProof from './PhotoProof';
 import PhotoUploadOnly from './PhotoUploadOnly';
 import VoiceConfirmation from './VoiceConfirmation';
 
@@ -31,19 +30,21 @@ export default function ConfirmationModal({
   const [hasVoice, setHasVoice] = useState(false);
 
   const steps = [
-    { label: 'Confirm', required: true },
-    ...(requirePhoto ? [{ label: 'Photo', required: true }] : []),
-    ...(requireVoice ? [{ label: 'Voice', required: true }] : []),
+    { label: 'Confirm', required: true, type: 'confirm' as const },
+    ...(requirePhoto ? [{ label: 'Photo', required: true, type: 'photo' as const }] : []),
+    ...(requireVoice ? [{ label: 'Voice', required: true, type: 'voice' as const }] : []),
   ];
 
   const resolvedPhotoTaskId = itemId?.startsWith('task:')
     ? itemId.replace('task:', '')
     : `leaving-home-${itemId || itemName}`;
 
+  const currentStepType = steps[currentStep]?.type;
+
   const canProgress = () => {
-    if (currentStep === 0) return true; // Confirm step always available
-    if (currentStep === 1 && requirePhoto) return hasPhoto;
-    if (currentStep === steps.length - 1 && requireVoice) return hasVoice;
+    if (currentStepType === 'confirm') return true;
+    if (currentStepType === 'photo') return hasPhoto;
+    if (currentStepType === 'voice') return hasVoice;
     return true;
   };
 
@@ -128,7 +129,7 @@ export default function ConfirmationModal({
 
             {/* Content */}
             <div className="p-6 space-y-6">
-              {currentStep === 0 && (
+              {currentStepType === 'confirm' && (
                 <motion.div
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
@@ -144,7 +145,7 @@ export default function ConfirmationModal({
                 </motion.div>
               )}
 
-              {currentStep === 1 && requirePhoto && (
+              {currentStepType === 'photo' && (
                 <motion.div
                   initial={{ opacity: 0, x: 20 }}
                   animate={{ opacity: 1, x: 0 }}
@@ -159,7 +160,7 @@ export default function ConfirmationModal({
                 </motion.div>
               )}
 
-              {currentStep === 2 && requireVoice && (
+              {currentStepType === 'voice' && (
                 <motion.div
                   initial={{ opacity: 0, x: 20 }}
                   animate={{ opacity: 1, x: 0 }}

@@ -17,6 +17,7 @@ export default function VoiceConfirmation({ itemName, onVoiceCapture, hasRecordi
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioRef = useRef<HTMLAudioElement>(null);
   const chunksRef = useRef<Blob[]>([]);
+  const audioBlobRef = useRef<Blob | null>(null);
 
   const startRecording = async () => {
     try {
@@ -31,6 +32,7 @@ export default function VoiceConfirmation({ itemName, onVoiceCapture, hasRecordi
 
       mediaRecorder.onstop = () => {
         const audioBlob = new Blob(chunksRef.current, { type: 'audio/webm' });
+        audioBlobRef.current = audioBlob;
         const url = URL.createObjectURL(audioBlob);
         setAudioUrl(url);
         setHasAudio(true);
@@ -129,6 +131,7 @@ export default function VoiceConfirmation({ itemName, onVoiceCapture, hasRecordi
                 <motion.button
                   whileHover={{ scale: 1.1 }}
                   whileTap={{ scale: 0.95 }}
+                  onClick={() => audioRef.current?.play()}
                   className="p-3 rounded-full bg-accent text-accent-foreground hover:bg-accent/90 transition-colors"
                 >
                   <Play className="w-5 h-5" />
@@ -155,6 +158,7 @@ export default function VoiceConfirmation({ itemName, onVoiceCapture, hasRecordi
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
+                onClick={() => { if (audioBlobRef.current) onVoiceCapture?.(audioBlobRef.current); }}
                 className="flex-1 py-3 rounded-lg bg-accent text-accent-foreground font-semibold hover:bg-accent/90 transition-colors"
               >
                 <Check className="w-5 h-5 inline mr-2" />

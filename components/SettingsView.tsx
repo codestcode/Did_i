@@ -3,8 +3,8 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Bell, Lock, Eye, AlertCircle, ChevronRight, ToggleLeft as Toggle2 } from 'lucide-react';
-import PreferencePanel from './PreferencePanel';
 import RealSettingsPanel from './RealSettingsPanel';
+import { useSettingsContext } from '@/context/SettingsContext';
 
 interface Setting {
   id: string;
@@ -19,6 +19,7 @@ interface SettingsViewProps {
 }
 
 export default function SettingsView({ onActivateLeavingHome }: SettingsViewProps) {
+  const { settings: appSettings, updateSetting: updateAppSetting } = useSettingsContext();
   const [settings, setSettings] = useState<Setting[]>([
     {
       id: 'notifications',
@@ -32,7 +33,7 @@ export default function SettingsView({ onActivateLeavingHome }: SettingsViewProp
       title: 'Require Photo Proof',
       description: 'Photos must be taken for verification',
       icon: Eye,
-      enabled: true
+      enabled: appSettings.photoQuality !== 'low'
     },
     {
       id: 'voice-required',
@@ -56,6 +57,9 @@ export default function SettingsView({ onActivateLeavingHome }: SettingsViewProp
     setSettings(settings.map(setting =>
       setting.id === id ? { ...setting, enabled: !setting.enabled } : setting
     ));
+    if (id === 'notifications') {
+      updateAppSetting('notificationFrequency', settings.find(s => s.id === id)?.enabled ? 'never' : 'always');
+    }
   };
 
   const containerVariants = {
@@ -223,6 +227,12 @@ export default function SettingsView({ onActivateLeavingHome }: SettingsViewProp
           <motion.button
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
+            onClick={() => {
+              if (window.confirm('Are you sure you want to clear all data? This cannot be undone.')) {
+                localStorage.clear();
+                window.location.reload();
+              }
+            }}
             className="w-full py-3 rounded-lg bg-destructive/20 text-destructive font-semibold hover:bg-destructive/30 transition-colors"
           >
             Clear All Data
