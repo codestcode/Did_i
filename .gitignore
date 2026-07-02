@@ -42,4 +42,4 @@ next-env.d.ts
 # ignored files and folders
 PHOTO_FEATURE.md
 PHOTO_UPDATE.md
-/public/stickers
+
