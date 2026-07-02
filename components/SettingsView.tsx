@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useLeavingHome } from '@/context/LeavingHomeContext';
 import { motion } from 'framer-motion';
 import { Bell, Lock, Eye, AlertCircle, ChevronRight, ToggleLeft as Toggle2 } from 'lucide-react';
 import RealSettingsPanel from './RealSettingsPanel';
@@ -14,11 +15,8 @@ interface Setting {
   enabled: boolean;
 }
 
-interface SettingsViewProps {
-  onActivateLeavingHome?: () => void;
-}
-
-export default function SettingsView({ onActivateLeavingHome }: SettingsViewProps) {
+export default function SettingsView() {
+  const { activate: activateLeavingHome } = useLeavingHome();
   const { settings: appSettings, updateSetting: updateAppSetting } = useSettingsContext();
   const [settings, setSettings] = useState<Setting[]>([
     {
@@ -103,7 +101,7 @@ export default function SettingsView({ onActivateLeavingHome }: SettingsViewProp
               whileTap={{ scale: 0.95 }}
               onClick={() => {
                 setLeavingHomeMode(!leavingHomeMode);
-                onActivateLeavingHome?.();
+                activateLeavingHome();
               }}
               className={`px-6 py-3 rounded-lg font-semibold transition-all ${
                 leavingHomeMode

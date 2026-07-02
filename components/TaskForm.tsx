@@ -19,6 +19,7 @@ export default function TaskForm({ task, isEditing = false, onSubmit, onCancel }
   const [description, setDescription] = useState(task?.description || '');
   const [category, setCategory] = useState(task?.category || 'General');
   const [requiresPhoto, setRequiresPhoto] = useState(task?.requiresPhoto || false);
+  const [requiresVoice, setRequiresVoice] = useState(task?.requiresVoice || false);
   const [urgency, setUrgency] = useState<'high' | 'medium' | 'low'>(task?.urgency || 'medium');
   const [errors, setErrors] = useState<Record<string, string>>({});
 
@@ -42,6 +43,7 @@ export default function TaskForm({ task, isEditing = false, onSubmit, onCancel }
       description: description.trim() || undefined,
       category,
       requiresPhoto,
+      requiresVoice,
       photoIds: task?.photoIds || [],
       isArchived: task?.isArchived || false,
       urgency,
@@ -138,19 +140,35 @@ export default function TaskForm({ task, isEditing = false, onSubmit, onCancel }
           </div>
         </div>
 
-        {/* Requires Photo */}
-        <div className="flex items-center gap-3 p-3 rounded-lg bg-secondary/30 border border-border">
-          <input
-            type="checkbox"
-            id="requiresPhoto"
-            checked={requiresPhoto}
-            onChange={(e) => setRequiresPhoto(e.target.checked)}
-            className="w-4 h-4 cursor-pointer"
-          />
-          <label htmlFor="requiresPhoto" className="flex-1 cursor-pointer">
-            <p className="font-medium text-foreground">Require photo proof</p>
-            <p className="text-xs text-muted-foreground">Task must have a photo before being confirmed</p>
-          </label>
+        {/* Proof Requirements */}
+        <div className="space-y-2">
+          <label className="block text-sm font-medium text-foreground">Proof Requirements</label>
+          <div className="flex items-center gap-3 p-3 rounded-lg bg-secondary/30 border border-border">
+            <input
+              type="checkbox"
+              id="requiresPhoto"
+              checked={requiresPhoto}
+              onChange={(e) => setRequiresPhoto(e.target.checked)}
+              className="w-4 h-4 cursor-pointer"
+            />
+            <label htmlFor="requiresPhoto" className="flex-1 cursor-pointer">
+              <p className="font-medium text-foreground">Require photo proof</p>
+              <p className="text-xs text-muted-foreground">Take a photo before confirming</p>
+            </label>
+          </div>
+          <div className="flex items-center gap-3 p-3 rounded-lg bg-secondary/30 border border-border">
+            <input
+              type="checkbox"
+              id="requiresVoice"
+              checked={requiresVoice}
+              onChange={(e) => setRequiresVoice(e.target.checked)}
+              className="w-4 h-4 cursor-pointer"
+            />
+            <label htmlFor="requiresVoice" className="flex-1 cursor-pointer">
+              <p className="font-medium text-foreground">Require voice proof</p>
+              <p className="text-xs text-muted-foreground">Record a voice note before confirming</p>
+            </label>
+          </div>
         </div>
 
         {/* Actions */}

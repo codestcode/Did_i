@@ -84,6 +84,7 @@ export function useTasks() {
         description: original.description,
         category: original.category,
         requiresPhoto: original.requiresPhoto,
+        requiresVoice: original.requiresVoice,
         photoIds: [],
         isArchived: false,
         urgency: original.urgency,

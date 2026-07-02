@@ -39,7 +39,9 @@ export default function TaskManager() {
 
   return (
     <div className="space-y-6 max-w-4xl mx-auto">
-      {/* Add Task Button */}
+      <div className="flex justify-center mb-4">
+        <img src="/stickers/unwell.png" alt="" className="w-60 h-60 sm:w-72 sm:h-72 select-none" />
+      </div>
       <motion.button
         whileHover={{ scale: 1.02 }}
         whileTap={{ scale: 0.98 }}

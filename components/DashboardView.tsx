@@ -1,6 +1,7 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
+import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import {
   Heart, Frown, FileText, Clock, BedDouble, BookOpen,
@@ -18,24 +19,88 @@ interface AnxietyRecord {
   date: string;
 }
 
-const weeklyData = [
-  { name: 'Mon', completed: 8, total: 12 },
-  { name: 'Tue', completed: 10, total: 12 },
-  { name: 'Wed', completed: 12, total: 12 },
-  { name: 'Thu', completed: 11, total: 12 },
-  { name: 'Fri', completed: 12, total: 12 },
-  { name: 'Sat', completed: 9, total: 10 },
-  { name: 'Sun', completed: 10, total: 10 },
-];
+interface ConfirmationItem {
+  name: string;
+  time: string;
+  timestamp: number;
+}
 
-const recentConfirmations = [
-  { name: 'Locked Front Door', time: '2 hours ago' },
-  { name: 'Turned Off Stove', time: '4 hours ago' },
-  { name: 'Windows Closed', time: 'Today 3:45 PM' },
-  { name: 'Car Parked', time: 'Yesterday 6:20 PM' },
-];
+interface WeeklyDay {
+  name: string;
+  completed: number;
+  total: number;
+}
 
-export default function DashboardView({ onViewChange }: { onViewChange?: (view: string) => void }) {
+const DAY_NAMES = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+
+function computeWeeklyData(): WeeklyDay[] {
+  const completions = taskCompletionStorage.getAll();
+  const tasks = taskStorage.getTasks().filter(t => !t.isArchived);
+  const totalTasks = tasks.length;
+
+  const data: WeeklyDay[] = [];
+  const now = new Date();
+
+  for (let i = 6; i >= 0; i--) {
+    const day = new Date(now);
+    day.setDate(day.getDate() - i);
+    day.setHours(0, 0, 0, 0);
+    const dayEnd = new Date(day);
+    dayEnd.setHours(23, 59, 59, 999);
+
+    const dayName = DAY_NAMES[day.getDay()];
+    let completed = 0;
+
+    for (const completion of Object.values(completions)) {
+      if (completion.completed && completion.completedAt) {
+        if (completion.completedAt >= day.getTime() && completion.completedAt <= dayEnd.getTime()) {
+          completed++;
+        }
+      }
+    }
+
+    data.push({ name: dayName, completed, total: totalTasks });
+  }
+
+  return data;
+}
+
+function formatRelativeTime(timestamp: number): string {
+  const diff = Date.now() - timestamp;
+  const minutes = Math.floor(diff / 60000);
+  if (minutes < 1) return 'Just now';
+  if (minutes < 60) return `${minutes}m ago`;
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return `${hours}h ago`;
+  const days = Math.floor(hours / 24);
+  if (days === 1) return 'Yesterday';
+  return `${days}d ago`;
+}
+
+function loadConfirmations(): ConfirmationItem[] {
+  const completions = taskCompletionStorage.getAll();
+  const tasks = taskStorage.getTasks();
+  const items: ConfirmationItem[] = [];
+
+  for (const [taskId, completion] of Object.entries(completions)) {
+    if (completion.completed && completion.completedAt) {
+      const task = tasks.find(t => t.id === taskId);
+      if (task) {
+        items.push({
+          name: task.title,
+          time: formatRelativeTime(completion.completedAt),
+          timestamp: completion.completedAt,
+        });
+      }
+    }
+  }
+
+  items.sort((a, b) => b.timestamp - a.timestamp);
+  return items.slice(0, 5);
+}
+
+export default function DashboardView() {
+  const router = useRouter();
   const [taskCount, setTaskCount] = useState(0);
   const [completedToday, setCompletedToday] = useState(0);
   const [anxietyCount, setAnxietyCount] = useState(0);
@@ -52,8 +117,18 @@ export default function DashboardView({ onViewChange }: { onViewChange?: (view: 
   const [notesCount, setNotesCount] = useState(0);
   const [stressLevel, setStressLevel] = useState(3);
   const [latestAnxiety, setLatestAnxiety] = useState<number | null>(null);
+  const [recentConfirmations, setRecentConfirmations] = useState<ConfirmationItem[]>([]);
+  const [weeklyData, setWeeklyData] = useState<WeeklyDay[]>(computeWeeklyData());
+  const [rechecksPrevented, setRechecksPrevented] = useState(0);
+  const [anxietyReduced, setAnxietyReduced] = useState(0);
+
+  const loadConfirmationsState = useCallback(() => {
+    setRecentConfirmations(loadConfirmations());
+  }, []);
 
   function loadData() {
+    loadConfirmationsState();
+    setWeeklyData(computeWeeklyData());
     const tasks = taskStorage.getTasks().filter((t) => !t.isArchived);
     setTaskCount(tasks.length);
 
@@ -100,6 +175,15 @@ export default function DashboardView({ onViewChange }: { onViewChange?: (view: 
       } catch { /* ignore */ }
     }
 
+    setRechecksPrevented(todayCompletions.length);
+    if (records.length >= 2) {
+      const sorted = [...records].sort((a, b) => b.timestamp - a.timestamp);
+      const diff = sorted[1].level - sorted[0].level;
+      setAnxietyReduced(diff > 0 ? diff : 0);
+    } else {
+      setAnxietyReduced(0);
+    }
+
     const photos = typeof window !== 'undefined'
       ? JSON.parse(localStorage.getItem('did_i_photos') || '[]')
       : [];
@@ -123,10 +207,22 @@ export default function DashboardView({ onViewChange }: { onViewChange?: (view: 
     }
   }
 
-  useEffect(() => { loadData(); }, []);
+  useEffect(() => {
+    loadData();
+    loadConfirmationsState();
+  }, [loadConfirmationsState]);
+
+  useEffect(() => {
+    const onFocus = () => {
+      loadData();
+      loadConfirmationsState();
+    };
+    window.addEventListener('focus', onFocus);
+    return () => window.removeEventListener('focus', onFocus);
+  }, [loadConfirmationsState]);
 
   function goToSleep() {
-    onViewChange?.('sleep');
+    router.push('/sleep');
   }
 
   return (
@@ -135,6 +231,26 @@ export default function DashboardView({ onViewChange }: { onViewChange?: (view: 
       animate={{ opacity: 1 }}
       className="overflow-y-auto h-full px-4 py-6 space-y-8"
     >
+      {/* Progress Highlights */}
+      <section>
+        <div className="glass3d rounded-2xl p-5 border border-border grid grid-cols-2 gap-4">
+          <div className="text-center">
+            <div className="w-12 h-12 rounded-xl bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center mx-auto mb-2">
+              <ShieldCheck className="w-6 h-6 text-emerald-600 dark:text-emerald-400" />
+            </div>
+            <p className="text-2xl font-extrabold text-foreground">{rechecksPrevented}</p>
+            <p className="text-xs text-muted-foreground mt-0.5">Rechecks Prevented</p>
+          </div>
+          <div className="text-center">
+            <div className="w-12 h-12 rounded-xl bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center mx-auto mb-2">
+              <Heart className="w-6 h-6 text-purple-600 dark:text-purple-400" />
+            </div>
+            <p className="text-2xl font-extrabold text-foreground">{anxietyReduced}</p>
+            <p className="text-xs text-muted-foreground mt-0.5">Anxiety Reduced</p>
+          </div>
+        </div>
+      </section>
+
       {/* Your Reports */}
       <section className="space-y-3">
         <div className="flex items-center justify-between">
@@ -143,7 +259,7 @@ export default function DashboardView({ onViewChange }: { onViewChange?: (view: 
 
         <div className="grid grid-cols-3 gap-2">
           {/* Active Tasks */}
-          <div className="rounded-2xl p-3 flex flex-col gap-1.5 bg-chart-2 text-white shadow-lg cursor-pointer" onClick={() => onViewChange?.('tasks')}>
+          <div className="rounded-2xl p-3 flex flex-col gap-1.5 bg-chart-2 text-white shadow-lg cursor-pointer" onClick={() => router.push('/tasks')}>
             <div className="flex items-center gap-1">
               <ClipboardList className="w-4 h-4" />
               <span className="text-xs font-semibold">Tasks</span>
@@ -151,21 +267,21 @@ export default function DashboardView({ onViewChange }: { onViewChange?: (view: 
             <span className="text-xl font-extrabold leading-tight">{taskCount}</span>
             <span className="text-[10px] text-white/80">active</span>
             <div className="flex items-end gap-0.5 h-8 mt-1">
-              {weeklyData.map((d, i) => (
+              {(() => { const maxVal = Math.max(...weeklyData.map(d => Math.max(d.completed, d.total || 1)), 1); return weeklyData.map((d, i) => (
                 <div
                   key={i}
                   className="flex-1 rounded-full"
                   style={{
-                    height: `${(d.completed / 12) * 100}%`,
+                    height: `${(Math.max(d.completed, d.total) / maxVal) * 100}%`,
                     background: 'rgba(255,255,255,0.6)',
                   }}
                 />
-              ))}
+              )); })()}
             </div>
           </div>
 
           {/* Anxiety Check-ins */}
-          <div className="rounded-2xl p-3 flex flex-col gap-1.5 bg-chart-5 text-white shadow-lg cursor-pointer" onClick={() => onViewChange?.('anxiety')}>
+          <div className="rounded-2xl p-3 flex flex-col gap-1.5 bg-chart-5 text-white shadow-lg cursor-pointer" onClick={() => router.push('/anxiety')}>
             <div className="flex items-center gap-1">
               <Activity className="w-4 h-4" />
               <span className="text-xs font-semibold">Anxiety</span>
@@ -189,7 +305,7 @@ export default function DashboardView({ onViewChange }: { onViewChange?: (view: 
           </div>
 
           {/* Photos */}
-          <div className="rounded-2xl p-3 flex flex-col gap-1.5 bg-chart-4 text-white shadow-lg cursor-pointer" onClick={() => onViewChange?.('tasks')}>
+          <div className="rounded-2xl p-3 flex flex-col gap-1.5 bg-chart-4 text-white shadow-lg cursor-pointer" onClick={() => router.push('/tasks')}>
             <div className="flex items-center gap-1">
               <Camera className="w-4 h-4" />
               <span className="text-xs font-semibold">Photos</span>
@@ -219,29 +335,26 @@ export default function DashboardView({ onViewChange }: { onViewChange?: (view: 
           <h2 className="font-heading text-lg font-semibold text-foreground">Recent Confirmations</h2>
         </div>
         <div className="glass3d rounded-2xl p-4 border border-border space-y-2">
-          {recentConfirmations.map((item, i) => (
-            <div key={i} className="flex items-center gap-3 p-3 rounded-xl bg-emerald-50/60 dark:bg-emerald-950/20 border border-emerald-200/50 dark:border-emerald-800/20 cursor-pointer" onClick={() => onViewChange?.('checklist')}>
-              <div className="w-10 h-10 rounded-xl bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center shrink-0">
-                <ShieldCheck className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-foreground">{item.name}</p>
-                <p className="text-xs text-muted-foreground">{item.time}</p>
-              </div>
-              <span className="text-[10px] font-bold uppercase tracking-[1px] px-2.5 py-1 rounded-full bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 shrink-0">Confirmed</span>
+          {recentConfirmations.length === 0 ? (
+            <div className="text-center py-6 text-sm text-muted-foreground">
+              No confirmations yet. Complete tasks in Leaving Home.
             </div>
-          ))}
+          ) : (
+            recentConfirmations.map((item, i) => (
+              <div key={i} className="flex items-center gap-3 p-3 rounded-xl bg-emerald-50/60 dark:bg-emerald-950/20 border border-emerald-200/50 dark:border-emerald-800/20 cursor-pointer" onClick={() => router.push('/checklist')}>
+                <div className="w-10 h-10 rounded-xl bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center shrink-0">
+                  <ShieldCheck className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium text-foreground">{item.name}</p>
+                  <p className="text-xs text-muted-foreground">{item.time}</p>
+                </div>
+                <span className="text-[10px] font-bold uppercase tracking-[1px] px-2.5 py-1 rounded-full bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 shrink-0">Confirmed</span>
+              </div>
+            ))
+          )}
         </div>
       </section>
-
-      {/* Decorative page sticker */}
-      <div className="relative h-0" aria-hidden="true">
-        <img
-          src="/stickers/growth.png"
-          alt=""
-          className="absolute opacity-20 dark:opacity-15 w-[120px] right-0 -top-4 pointer-events-none select-none"
-        />
-      </div>
 
       {/* Mindful Tracker */}
       <section className="space-y-3">
@@ -252,7 +365,7 @@ export default function DashboardView({ onViewChange }: { onViewChange?: (view: 
 
         <div className="space-y-3">
           {/* Mindful Hours */}
-          <div className="glass3d rounded-2xl p-4 border border-border cursor-pointer" onClick={() => onViewChange?.('tasks')}>
+          <div className="glass3d rounded-2xl p-4 border border-border cursor-pointer" onClick={() => router.push('/tasks')}>
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <div className="w-14 h-14 rounded-2xl bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center shrink-0">
@@ -291,7 +404,7 @@ export default function DashboardView({ onViewChange }: { onViewChange?: (view: 
           </div>
 
           {/* Mindful Journal */}
-          <div className="glass3d rounded-2xl p-4 border border-border cursor-pointer" onClick={() => onViewChange?.('anxiety')}>
+          <div className="glass3d rounded-2xl p-4 border border-border cursor-pointer" onClick={() => router.push('/anxiety')}>
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <div className="w-14 h-14 rounded-2xl bg-orange-100 dark:bg-orange-900/30 flex items-center justify-center shrink-0">
@@ -322,7 +435,7 @@ export default function DashboardView({ onViewChange }: { onViewChange?: (view: 
           </div>
 
           {/* Stress Level */}
-          <div className="glass3d rounded-2xl p-4 border border-border cursor-pointer" onClick={() => onViewChange?.('anxiety')}>
+          <div className="glass3d rounded-2xl p-4 border border-border cursor-pointer" onClick={() => router.push('/anxiety')}>
             <div className="flex items-center gap-3">
               <div className="w-14 h-14 rounded-2xl bg-yellow-100 dark:bg-yellow-900/30 flex items-center justify-center shrink-0">
                 <Activity className="w-6 h-6 text-yellow-600 dark:text-yellow-400" />
@@ -347,7 +460,7 @@ export default function DashboardView({ onViewChange }: { onViewChange?: (view: 
           </div>
 
           {/* Mood Tracker */}
-          <div className="glass3d rounded-2xl p-4 border border-border cursor-pointer" onClick={() => onViewChange?.('anxiety')}>
+          <div className="glass3d rounded-2xl p-4 border border-border cursor-pointer" onClick={() => router.push('/anxiety')}>
             <div className="flex items-center gap-3 mb-3">
               <div className="w-14 h-14 rounded-2xl bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center shrink-0">
                 <Smile className="w-6 h-6 text-amber-600 dark:text-amber-400" />
