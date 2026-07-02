@@ -217,8 +217,30 @@ export default function DashboardView() {
       loadData();
       loadConfirmationsState();
     };
+    const onSleepChange = () => {
+      const sleepRaw = localStorage.getItem('did_i_sleep_records');
+      if (sleepRaw) {
+        try {
+          const slp: { date: string; hours: number }[] = JSON.parse(sleepRaw);
+          if (slp.length > 0) {
+            const avg = slp.reduce((s, r) => s + r.hours, 0) / slp.length;
+            setSleepAvg(Math.round(avg * 10) / 10);
+            const latestSlp = slp.sort((a, b) => b.date.localeCompare(a.date))[0];
+            if (latestSlp) {
+              if (latestSlp.hours < 5) setSleepLabel('Insomniac');
+              else if (latestSlp.hours < 7) setSleepLabel('Restless');
+              else setSleepLabel('Well rested');
+            }
+          }
+        } catch { /* ignore */ }
+      }
+    };
     window.addEventListener('focus', onFocus);
-    return () => window.removeEventListener('focus', onFocus);
+    window.addEventListener('sleep-data-changed', onSleepChange);
+    return () => {
+      window.removeEventListener('focus', onFocus);
+      window.removeEventListener('sleep-data-changed', onSleepChange);
+    };
   }, [loadConfirmationsState]);
 
   function goToSleep() {
@@ -242,8 +264,8 @@ export default function DashboardView() {
             <p className="text-xs text-muted-foreground mt-0.5">Rechecks Prevented</p>
           </div>
           <div className="text-center">
-            <div className="w-12 h-12 rounded-xl bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center mx-auto mb-2">
-              <Heart className="w-6 h-6 text-purple-600 dark:text-purple-400" />
+            <div className="w-12 h-12 rounded-xl bg-chart-5/10 flex items-center justify-center mx-auto mb-2">
+              <Heart className="w-6 h-6 text-chart-5" />
             </div>
             <p className="text-2xl font-extrabold text-foreground">{anxietyReduced}</p>
             <p className="text-xs text-muted-foreground mt-0.5">Anxiety Reduced</p>
@@ -387,8 +409,8 @@ export default function DashboardView() {
           <div className="glass3d rounded-2xl p-4 border border-border cursor-pointer" onClick={goToSleep}>
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="w-14 h-14 rounded-2xl bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center shrink-0">
-                  <BedDouble className="w-6 h-6 text-purple-600 dark:text-purple-400" />
+                <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center shrink-0">
+                  <BedDouble className="w-6 h-6 text-primary" />
                 </div>
                 <div>
                   <p className="font-semibold text-foreground text-sm">Sleep Quality</p>
