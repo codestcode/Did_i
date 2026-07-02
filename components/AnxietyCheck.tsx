@@ -110,11 +110,19 @@ export default function AnxietyCheck() {
 
   return (
     <motion.div
-      className="overflow-y-auto h-full p-6 bg-background"
+      className="overflow-y-auto h-full p-6 bg-background relative"
       variants={containerVariants}
       initial="hidden"
       animate="visible"
     >
+      {/* Decorative sticker */}
+      <div className="relative h-0" aria-hidden="true">
+        <img
+          src="/stickers/self-love.png"
+          alt=""
+          className="absolute opacity-20 dark:opacity-15 w-[120px] right-2 -top-2 pointer-events-none select-none"
+        />
+      </div>
       <div className="max-w-4xl mx-auto space-y-6">
         {/* Header */}
         <motion.div variants={itemVariants}>
@@ -183,7 +191,7 @@ export default function AnxietyCheck() {
         {/* Today's Summary */}
         {avgLevel !== null && (
           <motion.div variants={itemVariants} className="grid md:grid-cols-2 gap-4">
-            <div className="bg-card rounded-xl border border-border p-6">
+            <div className="glass3d bg-card rounded-xl border border-border p-6">
               <div className="flex items-center gap-3 mb-2">
                 <Heart className="w-5 h-5 text-accent" />
                 <h3 className="font-semibold text-foreground">Today's Average</h3>
@@ -192,7 +200,7 @@ export default function AnxietyCheck() {
               <p className="text-sm text-muted-foreground mt-2">{todayRecords.length} check-in(s) today</p>
             </div>
 
-            <div className="bg-card rounded-xl border border-border p-6">
+            <div className="glass3d bg-card rounded-xl border border-border p-6">
               <div className="flex items-center gap-3 mb-2">
                 <TrendingDown className="w-5 h-5 text-accent" />
                 <h3 className="font-semibold text-foreground">Trend</h3>
@@ -216,7 +224,7 @@ export default function AnxietyCheck() {
         )}
 
         {/* Anxiety Level Input */}
-        <motion.div variants={itemVariants} className="bg-card rounded-xl border border-border p-6">
+        <motion.div variants={itemVariants} className="glass3d bg-card rounded-xl border border-border p-6">
           <div className="flex items-center gap-3 mb-6">
             <Brain className="w-6 h-6 text-primary" />
             <h2 className="text-xl font-semibold text-foreground">Current Anxiety Level</h2>
@@ -247,7 +255,7 @@ export default function AnxietyCheck() {
         </motion.div>
 
         {/* Triggers */}
-        <motion.div variants={itemVariants} className="bg-card rounded-xl border border-border p-6">
+        <motion.div variants={itemVariants} className="glass3d bg-card rounded-xl border border-border p-6">
           <h2 className="text-xl font-semibold text-foreground mb-4">What triggered this anxiety?</h2>
 
           <div className="flex gap-2 mb-4">
@@ -295,7 +303,7 @@ export default function AnxietyCheck() {
         </motion.div>
 
         {/* Additional Notes */}
-        <motion.div variants={itemVariants} className="bg-card rounded-xl border border-border p-6">
+        <motion.div variants={itemVariants} className="glass3d bg-card rounded-xl border border-border p-6">
           <h2 className="text-xl font-semibold text-foreground mb-4">Additional Notes</h2>
           <textarea
             placeholder="How are you feeling? What helped? Any coping strategies you used?"
@@ -346,7 +354,7 @@ export default function AnxietyCheck() {
                     initial={{ opacity: 0, x: -20 }}
                     animate={{ opacity: 1, x: 0 }}
                     exit={{ opacity: 0, x: -20 }}
-                    className="bg-card rounded-xl border border-border p-4"
+                    className="glass3d bg-card rounded-xl border border-border p-4"
                   >
                     <div className="flex items-start justify-between mb-3">
                       <div className="flex-1">

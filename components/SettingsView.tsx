@@ -130,7 +130,7 @@ export default function SettingsView({ onActivateLeavingHome }: SettingsViewProp
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: index * 0.1 }}
-                className="bg-card rounded-xl border border-border p-4 hover:border-primary/30 transition-colors"
+                className="glass3d bg-card rounded-xl border border-border p-4 hover:border-primary/30 transition-colors"
               >
                 <div className="flex items-center justify-between">
                   <div className="flex items-start gap-4">
@@ -163,7 +163,7 @@ export default function SettingsView({ onActivateLeavingHome }: SettingsViewProp
         {/* Notification Settings */}
         <motion.div
           variants={itemVariants}
-          className="bg-card rounded-xl border border-border p-6"
+          className="glass3d bg-card rounded-xl border border-border p-6"
         >
           <h3 className="text-lg font-bold text-foreground mb-4">Notification Times</h3>
           <div className="space-y-4">
@@ -193,7 +193,7 @@ export default function SettingsView({ onActivateLeavingHome }: SettingsViewProp
         {/* About Section */}
         <motion.div
           variants={itemVariants}
-          className="bg-card rounded-xl border border-border p-6"
+          className="glass3d bg-card rounded-xl border border-border p-6"
         >
           <h3 className="text-lg font-bold text-foreground mb-4">About Did I?</h3>
           <div className="space-y-3 text-sm text-foreground leading-relaxed">

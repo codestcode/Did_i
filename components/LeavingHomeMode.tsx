@@ -1,8 +1,8 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Home, CheckCircle2, Clock, AlertCircle, X, ArrowRight } from 'lucide-react';
+import { Home, CheckCircle2, X, ArrowRight } from 'lucide-react';
 import ConfirmationModal from './ConfirmationModal';
 import { useTasks } from '@/hooks/useTasks';
 import { taskCompletionStorage } from '@/lib/services/storageService';
@@ -32,8 +32,8 @@ const DEFAULT_ITEMS: LeavingHomeItem[] = [
 ];
 
 export default function LeavingHomeMode({ isActive, onDeactivate }: LeavingHomeModeProps) {
-  const { getActiveTasks } = useTasks();
-  const activeTasks = getActiveTasks();
+  const { tasks } = useTasks();
+  const activeTasks = useMemo(() => tasks.filter((t) => !t.isArchived), [tasks]);
   const [items, setItems] = useState<LeavingHomeItem[]>(DEFAULT_ITEMS);
 
   const [selectedItem, setSelectedItem] = useState<LeavingHomeItem | null>(null);
@@ -113,7 +113,7 @@ export default function LeavingHomeMode({ isActive, onDeactivate }: LeavingHomeM
             initial={{ opacity: 0, scale: 0.95, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 20 }}
-            className="bg-card rounded-2xl shadow-2xl max-w-lg w-full border border-border overflow-hidden max-h-[68vh] sm:max-h-[75vh] flex flex-col"
+            className="glass3d bg-card rounded-2xl shadow-2xl max-w-lg w-full border border-border overflow-hidden max-h-[68vh] sm:max-h-[75vh] flex flex-col"
           >
             {/* Header */}
             <div className="bg-gradient-to-r from-primary to-accent p-3 sm:p-5 text-primary-foreground">

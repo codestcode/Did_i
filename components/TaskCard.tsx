@@ -45,7 +45,7 @@ export default function TaskCard({
       className={`rounded-xl border p-4 transition-all ${
         isArchived
           ? 'bg-muted/30 border-muted opacity-60 hover:opacity-100'
-          : 'bg-card border-border hover:border-primary/50 hover:shadow-md'
+          : 'glass3d bg-card border-border hover:border-primary/50 hover:shadow-md'
       }`}
     >
       <div className="space-y-3">

@@ -93,7 +93,7 @@ export default function ConfirmationModal({
             animate="visible"
             exit="exit"
             onClick={(e) => e.stopPropagation()}
-            className="bg-card rounded-2xl shadow-2xl max-w-md w-full border border-border overflow-hidden"
+            className="glass3d bg-card rounded-2xl shadow-2xl max-w-md w-full border border-border overflow-hidden"
           >
             {/* Header */}
             <div className="bg-gradient-to-r from-primary to-accent p-6 text-primary-foreground">

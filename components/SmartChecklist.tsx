@@ -138,7 +138,7 @@ export default function SmartChecklist({ items, onToggleItem }: SmartChecklistPr
                 className={`rounded-lg border transition-all overflow-hidden ${
                   item.completed
                     ? 'bg-accent/10 border-accent/30'
-                    : 'bg-card border-border hover:border-primary/50'
+                    : 'glass3d bg-card border-border hover:border-primary/50'
                 }`}
               >
                 <button

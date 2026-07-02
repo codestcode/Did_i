@@ -142,7 +142,7 @@ export default function TaskManager() {
         >
           <button
             onClick={() => setShowArchived(!showArchived)}
-            className="w-full flex items-center justify-between p-4 rounded-lg bg-card border border-border hover:bg-secondary/50 transition-colors"
+            className="w-full flex items-center justify-between p-4 rounded-lg glass3d bg-card border border-border hover:bg-secondary/50 transition-colors"
           >
             <span className="font-semibold text-foreground">Archived Tasks ({archivedTasks.length})</span>
             <ChevronDown className={`w-5 h-5 text-muted-foreground transition-transform ${showArchived ? 'rotate-180' : ''}`} />

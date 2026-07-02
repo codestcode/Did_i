@@ -67,7 +67,7 @@ export default function AnalyticsChart() {
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="bg-card rounded-xl border border-border p-6"
+        className="glass3d bg-card rounded-xl border border-border p-6"
       >
         <h3 className="text-lg font-bold text-foreground mb-4">Weekly Completion Rate</h3>
         <ResponsiveContainer width="100%" height={300}>
@@ -95,7 +95,7 @@ export default function AnalyticsChart() {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.2 }}
-        className="bg-card rounded-xl border border-border p-6"
+        className="glass3d bg-card rounded-xl border border-border p-6"
       >
         <h3 className="text-lg font-bold text-foreground mb-4">Anxiety Level Improvement</h3>
         <ResponsiveContainer width="100%" height={300}>
@@ -155,7 +155,7 @@ export default function AnalyticsChart() {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.5 }}
-        className="bg-card rounded-xl border border-border p-6"
+        className="glass3d bg-card rounded-xl border border-border p-6"
       >
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-lg font-bold text-foreground">Recent Check-ins</h3>

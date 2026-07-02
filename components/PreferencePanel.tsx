@@ -48,7 +48,7 @@ export default function PreferencePanel() {
       initial="hidden"
       animate="visible"
     >
-      <motion.div variants={itemVariants} className="bg-card rounded-xl border border-border p-6">
+      <motion.div variants={itemVariants} className="glass3d bg-card rounded-xl border border-border p-6">
         <div className="flex items-center gap-3 mb-4">
           <Palette className="w-5 h-5 text-primary" />
           <h3 className="text-lg font-bold text-foreground">Appearance</h3>
@@ -78,7 +78,7 @@ export default function PreferencePanel() {
         </div>
       </motion.div>
 
-      <motion.div variants={itemVariants} className="bg-card rounded-xl border border-border p-6">
+      <motion.div variants={itemVariants} className="glass3d bg-card rounded-xl border border-border p-6">
         <div className="flex items-center gap-3 mb-4">
           <Volume2 className="w-5 h-5 text-primary" />
           <h3 className="text-lg font-bold text-foreground">Audio</h3>
@@ -97,7 +97,7 @@ export default function PreferencePanel() {
         </div>
       </motion.div>
 
-      <motion.div variants={itemVariants} className="bg-card rounded-xl border border-border p-6">
+      <motion.div variants={itemVariants} className="glass3d bg-card rounded-xl border border-border p-6">
         <div className="flex items-center gap-3 mb-4">
           <Eye className="w-5 h-5 text-primary" />
           <h3 className="text-lg font-bold text-foreground">Photo Settings</h3>
@@ -119,7 +119,7 @@ export default function PreferencePanel() {
         </div>
       </motion.div>
 
-      <motion.div variants={itemVariants} className="bg-card rounded-xl border border-border p-6">
+      <motion.div variants={itemVariants} className="glass3d bg-card rounded-xl border border-border p-6">
         <h3 className="text-lg font-bold text-foreground mb-4">Reminders</h3>
         <div className="space-y-3">
           <label className="block">

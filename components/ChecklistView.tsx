@@ -167,7 +167,7 @@ export default function ChecklistView() {
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="bg-card rounded-xl border border-border p-6"
+            className="glass3d bg-card rounded-xl border border-border p-6"
           >
             <h2 className="text-xl font-bold text-foreground mb-4">Your Tasks</h2>
             <div className="space-y-3">
@@ -275,7 +275,7 @@ export default function ChecklistView() {
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-card rounded-xl border border-border p-6"
+          className="glass3d bg-card rounded-xl border border-border p-6"
         >
           <ChecklistTemplates onSelectTemplate={(items) => {
             const newItems = items.map((item, index) => ({

@@ -128,7 +128,7 @@ export default function RealSettingsPanel() {
               <h3 className="text-lg font-semibold text-foreground">{group.title}</h3>
             </div>
 
-            <div className="space-y-3 bg-card rounded-xl border border-border p-4">
+            <div className="space-y-3 glass3d bg-card rounded-xl border border-border p-4">
               {group.items.map((item: any) => (
                 <div key={item.id} className="flex items-center justify-between py-2">
                   <div className="flex-1">

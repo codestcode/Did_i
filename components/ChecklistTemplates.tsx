@@ -105,7 +105,7 @@ export default function ChecklistTemplates({ onSelectTemplate }: ChecklistTempla
               whileHover={{ y: -5 }}
               whileTap={{ scale: 0.95 }}
               onClick={() => onSelectTemplate(template.items)}
-              className="relative overflow-hidden rounded-xl p-4 border border-border bg-card hover:border-primary/50 transition-all group"
+              className="relative overflow-hidden glass3d rounded-xl p-4 border border-border bg-card hover:border-primary/50 transition-all group"
             >
               <div className={`absolute inset-0 bg-gradient-to-br ${template.color} opacity-0 group-hover:opacity-10 transition-opacity`} />
               <div className="relative z-10">

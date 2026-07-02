@@ -9,8 +9,9 @@ import Header from '@/components/Header';
 import LeavingHomeMode from '@/components/LeavingHomeMode';
 import TaskManager from '@/components/TaskManager';
 import AnxietyCheck from '@/components/AnxietyCheck';
+import SleepQuality from '@/components/SleepQuality';
 
-type ViewType = 'dashboard' | 'tasks' | 'anxiety' | 'checklist' | 'settings';
+type ViewType = 'dashboard' | 'tasks' | 'anxiety' | 'checklist' | 'settings' | 'sleep';
 
 export default function Home() {
   const [currentView, setCurrentView] = useState<ViewType>('dashboard');
@@ -30,7 +31,7 @@ export default function Home() {
         onActivateLeavingHome={() => setIsLeavingHomeActive(true)}
       />
       
-      <main className="flex-1 overflow-hidden">
+      <main className="flex-1 overflow-hidden pb-20">
         <motion.div
           key={currentView}
           variants={viewVariants}
@@ -40,11 +41,12 @@ export default function Home() {
           transition={{ duration: 0.3 }}
           className="h-full"
         >
-          {currentView === 'dashboard' && <DashboardView />}
+          {currentView === 'dashboard' && <DashboardView onViewChange={setCurrentView} />}
           {currentView === 'tasks' && <div className="overflow-y-auto h-full p-6"><TaskManager /></div>}
           {currentView === 'anxiety' && <AnxietyCheck />}
           {currentView === 'checklist' && <ChecklistView />}
           {currentView === 'settings' && <SettingsView onActivateLeavingHome={() => setIsLeavingHomeActive(true)} />}
+          {currentView === 'sleep' && <SleepQuality onBack={() => setCurrentView('dashboard')} />}
         </motion.div>
       </main>
 
